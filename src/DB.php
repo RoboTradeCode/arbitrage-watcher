@@ -45,7 +45,7 @@ class DB
         self::insert(
             'orderbooks_' . $exchange,
             [
-                'orderbook' => $orderbook,
+                'orderbook' => json_encode($orderbook),
                 'exchange_time' => $exchange_time,
                 'core_time' => $core_time
             ]
