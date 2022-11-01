@@ -30,4 +30,41 @@ class DB
 
         self::$connect = $dbh;
     }
+
+    public static function createTable(string $exchange): void
+    {
+        $sth = self::$connect->prepare(
+            'CREATE TABLE IF NOT EXISTS  `orderbooks_' . $exchange . '` (`id` INT UNSIGNED NOT NULL AUTO_INCREMENT, `orderbook` JSON NOT NULL, `exchange_time` DATETIME NULL, `core_time` DATETIME NULL, `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (`id`), UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE);',
+        );
+
+        $sth->execute();
+    }
+
+    public static function insertOrderbook(string $exchange, array $orderbook, string $exchange_time = null, string $core_time = null): void
+    {
+        self::insert(
+            'orderbooks_' . $exchange,
+            [
+                'orderbook' => $orderbook,
+                'exchange_time' => $exchange_time,
+                'core_time' => $core_time
+            ]
+        );
+    }
+
+    private static function insert(string $table, array $columns_and_values): void
+    {
+        $columns = array_keys($columns_and_values);
+
+        $sth = self::$connect->prepare(
+            sprintf(
+            /** @lang sql */ 'INSERT INTO `%s` (`%s`) VALUES (:%s)',
+                $table,
+                implode('`, `', $columns),
+                implode(', :', $columns)
+            )
+        );
+
+        $sth->execute($columns_and_values);
+    }
 }

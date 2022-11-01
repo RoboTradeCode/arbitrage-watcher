@@ -1,7 +1,10 @@
 <?php
 
-require_once dirname(__DIR__) . '/index.php';
+use Src\DB;
 
+require_once dirname(__DIR__) . '/index.php';
+$argv[1] = 'binance';
+$argv[2] = 'BTC/USDT';
 if (!isset($argv[1]))
     die('Set parameter: exchange');
 
@@ -19,20 +22,30 @@ $symbol = 'BTC/USDT';
 
 if ($exchange->has['watchOrderBook']) {
     $exchange::execute_and_run(function () use ($exchange, $symbol) {
-        $memcached = new Memcached();
-        $memcached->addServer('localhost', 11211);
+        DB::connect();
+
+        $name = $exchange->id;
+
+        DB::createTable($name);
 
         while (true) {
             try {
+                $start_time_before_get_orderbooks = microtime(true);
+
                 $orderbook = yield $exchange->watch_order_book($symbol);
                 $orderbook = (array) $orderbook;
                 $orderbook['asks'] = (array) $orderbook['asks'];
                 $orderbook['bids'] = (array) $orderbook['bids'];
 
-                $orderbook['asks'] = array_slice($orderbook['asks'], 1, 5);
-                $orderbook['bids'] = array_slice($orderbook['bids'], 1, 5);
+                $orderbook['asks'] = array_slice($orderbook['asks'], 1, 10);
+                $orderbook['bids'] = array_slice($orderbook['bids'], 1, 10);
                 $orderbook['core_timestamp'] = microtime(true);
-                $memcached->set($exchange->id . '_orderbook_' . $symbol, $orderbook);
+
+                $end_time_before_get_orderbooks = microtime(true);
+
+                DB::insertOrderbook($name, $orderbook, date('Y-m-d H:i:s', $orderbook['timestamp'] / 1000), date('Y-m-d H:i:s',  $orderbook['core_timestamp']));
+
+                echo '[' . date('Y-m-d H:i:s') . '] Time get orderbook: ' . ($end_time_before_get_orderbooks - $start_time_before_get_orderbooks) . '. Time record to db: ' , (microtime(true) - $end_time_before_get_orderbooks) . PHP_EOL;
             } catch (Exception $e) {
                 echo get_class($e), ' ', $e->getMessage(), "\n";
             }
