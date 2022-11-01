@@ -42,7 +42,7 @@ if ($exchange->has['watchOrderBook']) {
 
                 $end_time_before_get_orderbooks = microtime(true);
 
-                DB::insertOrderbook($name, $orderbook, $orderbook['timestamp'] ? date('Y-m-d H:i:s', $orderbook['timestamp'] / 1000) : null, date('Y-m-d H:i:s',  $orderbook['core_timestamp']));
+                DB::insertOrderbook($name, $orderbook, $orderbook['core_timestamp'], $orderbook['timestamp'] ? date('Y-m-d H:i:s', $orderbook['timestamp'] / 1000) : null);
 
                 echo '[' . date('Y-m-d H:i:s') . '] Time get orderbook: ' . ($end_time_before_get_orderbooks - $start_time_before_get_orderbooks) . '. Time record to db: ' , (microtime(true) - $end_time_before_get_orderbooks) . PHP_EOL;
             } catch (Exception $e) {
