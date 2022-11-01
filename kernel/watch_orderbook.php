@@ -3,8 +3,7 @@
 use Src\DB;
 
 require_once dirname(__DIR__) . '/index.php';
-$argv[1] = 'binance';
-$argv[2] = 'BTC/USDT';
+
 if (!isset($argv[1]))
     die('Set parameter: exchange');
 
