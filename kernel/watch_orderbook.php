@@ -11,7 +11,7 @@ if (!isset($argv[2]))
     die('Set parameter: symbol');
 
 $exchange_name = $argv[1];
-$symbol = $argv[1];
+$symbol = $argv[2];
 
 $exchange_class = "\\ccxt\\pro\\" . $exchange_name;
 
