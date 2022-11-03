@@ -34,7 +34,10 @@ class DB
     public static function createTable(string $exchange): void
     {
         $sth = self::$connect->prepare(
-            'CREATE TABLE IF NOT EXISTS `orderbooks_' . $exchange . '` (`id` INT UNSIGNED NOT NULL AUTO_INCREMENT, `orderbook` JSON NOT NULL, `microtime` DECIMAL(25,8) NOT NULL, `exchange_time` DATETIME NULL, `core_time` DATETIME NULL, `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (`id`), UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE);',
+            sprintf(
+            /** @lang sql */ 'CREATE TABLE IF NOT EXISTS `orderbooks_%s` (`id` INT UNSIGNED NOT NULL AUTO_INCREMENT, `orderbook` JSON NOT NULL, `microtime` DECIMAL(25,8) NOT NULL, `exchange_time` DATETIME NULL, `core_time` DATETIME NULL, `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (`id`), UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE);',
+                $exchange,
+            )
         );
 
         $sth->execute();
